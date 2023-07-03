@@ -1,31 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios, { Axios } from 'axios';
 import './App.css'
 
 function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [data, setData] = useState({username: '', password: ''});
+  const [error, setErrpt] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleUsernameChange = (event) => {
-    setUsername(event.target.value);
-  };
+  const handleChange = ({currentTarget: input}) => {
+    setData({...data, [input.name]: input.value})
+  }
 
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
+  const togglePassword = () => {
+    setShowPassword(!showPassword);
+  }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Handle login logic here
-    console.log('Username:', username);
-    console.log('Password:', password);
-    // You can add your own logic for authentication, API calls, etc.
+    
+    try {
+      const url = 'http://192.168.1.125:5000/api/users/login';
+      const {data: {token}} = await axios.post(url, data);
+      localStorage.setItem("token", token);
+      window.location = "/";
+    } catch (error) {
+      console.error(error);
+    }
   };
+
 
   return (
 
     <div className="container">
 
       <div className="l-container">
+        <div className="logo">
+          <img src={process.env.PUBLIC_URL + '/esokologo.png'} alt="" />
+        </div>
         <ul>
             <li>About</li>
             <li>Privacy</li>
@@ -35,28 +46,37 @@ function LoginPage() {
       </div>
 
       <div className="r-container">
-        <p>Login to your<br/> student dashboard</p>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="USER ID"
-            value={username}
-            onChange={handleUsernameChange}
-            required
-          />
-          <input
-            type="password"
-            placeholder="PASSWORD"
-            value={password}
-            onChange={handlePasswordChange}
-            required
-          />
-          <div className='base'>
-            <input type="submit" value="Login" />
-            <a href="#">Forgot User ID or Password</a>
-          </div>
-          
-        </form>
+        <div className="form-sec">
+          <p>Login to your<br/> student dashboard</p>
+          <form onSubmit={handleSubmit}>
+            <input
+              name='username'
+              type="text"
+              placeholder="USER ID"
+              value={data.username}
+              onChange={handleChange}
+              required
+            />
+            <input
+              name='password'
+              type="password"
+              placeholder="PASSWORD"
+              value={data.password}
+              onChange={handleChange}
+              required
+            />
+            <div className='base'>
+              <input type="submit" value="Login" />
+              <a href="#">Forgot User ID or Password</a>
+            </div>
+          </form>
+        </div>
+
+        <div className="img-sec">
+          <img src={process.env.PUBLIC_URL + '/formimg.svg'} alt="" />
+        </div>
+
+
       </div>
 
     </div>
